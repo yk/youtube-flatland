@@ -1,0 +1,6 @@
+checkpoints/
+railroads/
+.DS_Store
+
+venv/
+.venv/
