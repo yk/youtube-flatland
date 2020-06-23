@@ -56,14 +56,17 @@ def build_dqn(lr, n_actions, input_shape, fc1_dims, fc2_dims):
 
 
 class DQNAgent:
-	def __init__(self, alpha, gamma, n_actions, epsilon, batch_size, 
-	input_shape, epsilon_decay=0.996, epsilon_end=0.01, mem_size=1000000, fname='dqn_model.hdf5'):
+	def __init__(self, alpha, gamma, n_actions, epsilon, sample_size, batch_size, 
+		input_shape, training=True, epsilon_decay=0.996, epsilon_end=0.01, 
+		mem_size=1000000, fname='dqn_model.hdf5'):
 		self.action_space = [i for i in range(n_actions)]
 		self.gamma = gamma
 		self.epsilon = epsilon
 		self.epsilon_decay = epsilon_decay
 		self.epsilon_min = epsilon_end
+		self.sample_size = sample_size
 		self.batch_size = batch_size
+		self.training = training
 		self.model_file = fname
 		self.memory = ReplayBuffer(mem_size, input_shape, n_actions, discrete=True)
 		self.q_eval = build_dqn(alpha, n_actions, input_shape, 128, 128)
@@ -75,7 +78,7 @@ class DQNAgent:
 	def choose_action(self, state):
 		state = state[np.newaxis, :]
 		rand = np.random.random()
-		if rand < self.epsilon:
+		if rand < self.epsilon and self.training:
 			action = np.random.choice(self.action_space)
 		else:
 			actions = self.q_eval.predict(state)
@@ -83,9 +86,9 @@ class DQNAgent:
 		return action
 
 	def learn(self):
-		if self.memory.mem_cntr < self.batch_size:
+		if self.memory.mem_cntr < self.sample_size:
 			return
-		state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
+		state, action, reward, new_state, done = self.memory.sample_buffer(self.sample_size)
 		action_values = np.array(self.action_space, dtype=np.int8)
 		action_indices = np.dot(action, action_values)
 		
@@ -93,7 +96,7 @@ class DQNAgent:
 		q_next = self.q_eval.predict(new_state)
 		q_target = q_eval.copy()
 
-		batch_index = np.arange(self.batch_size, dtype=np.int32)
+		batch_index = np.arange(self.sample_size, dtype=np.int32)
 		q_target[batch_index, action_indices] = reward + self.gamma * np.max(q_next, axis=1)*done
 
 		loss = self.q_eval.fit(state, q_target, batch_size=self.batch_size, verbose=0)
@@ -103,7 +106,7 @@ class DQNAgent:
 		self.q_eval.save(self.model_file)
 	
 	def load_model(self):
-		self.q_eval = load_model(self.model_file)
+		self.q_eval = tf.keras.models.load_model(self.model_file)
 
 
 class DoubleDQNAgent:
