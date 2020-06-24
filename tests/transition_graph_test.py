@@ -14,7 +14,7 @@ from flatland.envs import rail_env
 from flatland.envs import rail_generators
 from flatland.utils import rendertools
 
-from youtube_flatland.utils import transition_graph
+from youtube_flatland.environment import transition_graph
 
 
 class EnvTest(absltest.TestCase):
