@@ -31,14 +31,23 @@ def build_transition_graph(env):
                     if env.rail.get_transition(k, t):
                         newx, newy = modify_coordinates(x, y, t)
                         v_dest = nodes[(newx, newy, t)]
-                        g.add_edge(v, v_dest)
-                        g.es[-1]['length']=1
+                        g.add_edge(v, v_dest, length=1)
     for k, v in nodes.items():
         v['x'], v['y'], v['o'] = k
     empty_vs = [v.index for v in g.vs if not v.all_edges()]
     g.delete_vertices(empty_vs)
-
     return g
+
+def merge_linear_paths(g):
+    vertices_to_delete = []
+    for v in g.vs:
+        if v.indegree() == 1 and v.outdegree() == 1:
+            e1, e2 = v.in_edges()[0], v.out_edges()[0]
+            s, t = e1.source_vertex, e2.target_vertex
+            g.add_edge(s, t, length=e1['length'] + e2['length'])
+            g.delete_edges([e1, e2])
+            vertices_to_delete.append(v)
+    g.delete_vertices(vertices_to_delete)
 
 
 def get_linear_path(g,v): #only explores one direction-> start right after junction

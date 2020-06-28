@@ -29,21 +29,10 @@ class EnvTest(absltest.TestCase):
 
         obs, info = env.reset()
         g = transition_graph.build_transition_graph(env)
-
-        #delete two paths as an example:
-        delete_stuff=True
-        if delete_stuff: 
-            path_1=transition_graph.get_linear_path(g,g.vs[93]) 
-            path_2=transition_graph.get_linear_path(g,g.vs[25]) 
-
-        vs_to_delete=transition_graph.join_linear_path(g,path_1)      
-        vs_to_delete+=transition_graph.join_linear_path(g,path_2)   
-
-        g.delete_vertices(vs_to_delete)
+        transition_graph.merge_linear_paths(g)
 
         plt = igraph.Plot()
         layout = [(v['y']+np.random.randn()*0.075, v['x']+np.random.randn()*0.075) for v in g.vs]
-
     
         plt.add(g, layout=layout)
         plt.redraw()
@@ -55,10 +44,15 @@ class EnvTest(absltest.TestCase):
         render.render_env()
         bg_img = Image.fromarray(render.get_image())
         graph_img = graph_img.resize(bg_img.size)
-        h, w = bg_img.size
-        bg_img = bg_img.resize((h//5*6, w//5*6))
 
-        bg_img.paste(graph_img, (h//12, w//12), graph_img)
+        minx, maxx, miny, maxy = min(g.vs['x']), max(g.vs['x']), min(g.vs['y']), max(g.vs['y'])
+        envh, envw = env.height, env.width
+
+        w, h = bg_img.size
+        graph_img = graph_img.resize((int((maxy - miny)/envw*w), int((maxx-minx)/envh*h)))
+        bg_img = bg_img.resize((int(w/envw*(envw+1)), int(h/envh*(envh+1))))
+
+        bg_img.paste(graph_img, (int(w/envw*(miny+.5)), int(h/envh*(minx+.5))), graph_img)
         bg_img.show()
 
 
