@@ -57,7 +57,7 @@ def merge_linear_paths(g):
 class TransitionGraph:
     def __init__(self, env):
         self.g = build_transition_graph(env)
-        merge_linear_paths(g)
+        merge_linear_paths(self.g)
 
 
 def get_linear_path(g,v): #only explores one direction-> start right after junction
