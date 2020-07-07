@@ -28,8 +28,8 @@ class EnvTest(absltest.TestCase):
                 rail_generator=rail_generators.sparse_rail_generator())
 
         obs, info = env.reset()
-        g = transition_graph.build_transition_graph(env)
-        transition_graph.merge_linear_paths(g)
+        tg = transition_graph.TransitionGraph(env)
+        g = tg.g
 
         plt = igraph.Plot()
         layout = [(v['y']+np.random.randn()*0.075, v['x']+np.random.randn()*0.075) for v in g.vs]

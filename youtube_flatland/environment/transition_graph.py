@@ -34,6 +34,7 @@ def build_transition_graph(env):
                         g.add_edge(v, v_dest, length=1)
     for k, v in nodes.items():
         v['x'], v['y'], v['o'] = k
+        v['xs'], v['ys'], v['os'] = ([kk] for kk in k)
     empty_vs = [v.index for v in g.vs if not v.all_edges()]
     g.delete_vertices(empty_vs)
     return g
@@ -45,9 +46,18 @@ def merge_linear_paths(g):
             e1, e2 = v.in_edges()[0], v.out_edges()[0]
             s, t = e1.source_vertex, e2.target_vertex
             g.add_edge(s, t, length=e1['length'] + e2['length'])
+            for a in ('xs', 'ys', 'os'):
+                s[a].extend(v[a])
+                t[a].extend(v[a])
             g.delete_edges([e1, e2])
             vertices_to_delete.append(v)
     g.delete_vertices(vertices_to_delete)
+
+
+class TransitionGraph:
+    def __init__(self, env):
+        self.g = build_transition_graph(env)
+        merge_linear_paths(g)
 
 
 def get_linear_path(g,v): #only explores one direction-> start right after junction
