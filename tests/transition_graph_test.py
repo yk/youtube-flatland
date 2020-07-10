@@ -22,17 +22,49 @@ from youtube_flatland.environment import transition_graph
 class EnvTest(absltest.TestCase):
     
     def test_build_graph(self):
-        env = rail_env.RailEnv(
+
+
+        manuel_graph=True
+        if manuel_graph:
+            specs = [[(8, 0), (1,90 ), (1, 90), (6, 0), (1, 90), (7, 90)],
+                    [(1, 180), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0)],
+                     [(8, 270), (1, 90), (1, 90), (2, 90), (1, 90), (7, 90)],
+                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)],
+                     [(1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]]
+
+            rail_shape = np.array(specs).shape
+
+            env = rail_env.RailEnv(
+                width=rail_shape[1],
+                height=rail_shape[0],
+                rail_generator=rail_generators.rail_from_manual_specifications_generator(specs),
+                number_of_agents=1
+            )
+        else:
+            env = rail_env.RailEnv(
                 width=25,
                 height=15,
                 rail_generator=rail_generators.sparse_rail_generator())
 
-        obs, info = env.reset()
+
+        observations, info = env.reset()
+
+
+
+        #env = rail_env.RailEnv(
+         #       width=5,
+          #      height=5,
+           #     rail_generator=rail_generators.complex_rail_generator())
+
+        #obs, info = env.reset()
+        #obs, info = env.reset()
+        #obs, info = env.reset()
+        
         tg = transition_graph.TransitionGraph(env)
         g = tg.g
 
         plt = igraph.Plot()
-        layout = [(v['y']+np.random.randn()*0.075, v['x']+np.random.randn()*0.075) for v in g.vs]
+        layout = [(v['y']+np.random.randn()*0.15, v['x']+np.random.randn()*0.15) for v in g.vs]
     
         plt.add(g, layout=layout)
         plt.redraw()
