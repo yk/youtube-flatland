@@ -45,12 +45,16 @@ def merge_linear_paths(g):
         if v.indegree() == 1 and v.outdegree() == 1:
             e1, e2 = v.in_edges()[0], v.out_edges()[0]
             s, t = e1.source_vertex, e2.target_vertex
-            g.add_edge(s, t, length=e1['length'] + e2['length'])
-            for a in ('xs', 'ys', 'os'):
-                s[a].extend(v[a])
-                t[a].extend(v[a])
-            g.delete_edges([e1, e2])
-            vertices_to_delete.append(v)
+
+            # we need to prevent linear paths from being removed completely
+            # because they are e.g. between two intersections
+            if s.outdegree() == 1 or t.indegree() == 1 or True:
+                g.add_edge(s, t, length=e1['length'] + e2['length'])
+                for a in ('xs', 'ys', 'os'):
+                    s[a].extend(v[a])
+                    t[a].extend(v[a])
+                g.delete_edges([e1, e2])
+                vertices_to_delete.append(v)
     g.delete_vertices(vertices_to_delete)
 
 
