@@ -48,7 +48,7 @@ def merge_linear_paths(g):
 
             # we need to prevent linear paths from being removed completely
             # because they are e.g. between two intersections
-            if s.outdegree() == 1 or t.indegree() == 1 or True:
+            if s.outdegree() == 1 or t.indegree() == 1:
                 g.add_edge(s, t, length=e1['length'] + e2['length'])
                 for a in ('xs', 'ys', 'os'):
                     s[a].extend(v[a])
