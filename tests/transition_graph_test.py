@@ -55,7 +55,7 @@ class EnvTest(absltest.TestCase):
         plt = igraph.Plot()
         layout = [(v['y']+np.random.randn()*0.15, v['x']+np.random.randn()*0.15) for v in g.vs]
     
-        plt.add(g, layout=layout)
+        plt.add(g, layout=layout,vertex_label=list(range(len(g.vs))),edge_label=list(range(len(g.es))))
         plt.redraw()
         with tempfile.NamedTemporaryFile() as f:
             plt.save(f.name)
@@ -64,6 +64,8 @@ class EnvTest(absltest.TestCase):
         render = rendertools.RenderTool(env, gl='PILSVG')
         render.render_env()
         bg_img = Image.fromarray(render.get_image())
+        #graph_img.show() #uncomment for higher res graph images to inspect labels etc.
+
         graph_img = graph_img.resize(bg_img.size)
 
         minx, maxx, miny, maxy = min(g.vs['x']), max(g.vs['x']), min(g.vs['y']), max(g.vs['y'])
@@ -75,8 +77,8 @@ class EnvTest(absltest.TestCase):
 
         bg_img.paste(graph_img, (int(w/envw*(miny+.5)), int(h/envh*(minx+.5))), graph_img)
         bg_img.show()
-        import IPython
-        IPython.embed()
+
+        print(f"edges that share common resources: {transition_graph.find_edges_that_share_resource(g)}")
 
 
 if __name__ == '__main__':
