@@ -48,17 +48,6 @@ class EnvTest(absltest.TestCase):
 
 
         observations, info = env.reset()
-
-
-
-        #env = rail_env.RailEnv(
-         #       width=5,
-          #      height=5,
-           #     rail_generator=rail_generators.complex_rail_generator())
-
-        #obs, info = env.reset()
-        #obs, info = env.reset()
-        #obs, info = env.reset()
         
         tg = transition_graph.TransitionGraph(env)
         g = tg.g
@@ -86,6 +75,8 @@ class EnvTest(absltest.TestCase):
 
         bg_img.paste(graph_img, (int(w/envw*(miny+.5)), int(h/envh*(minx+.5))), graph_img)
         bg_img.show()
+        import IPython
+        IPython.embed()
 
 
 if __name__ == '__main__':
