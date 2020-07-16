@@ -31,13 +31,33 @@ def build_transition_graph(env):
                     if env.rail.get_transition(k, t):
                         newx, newy = modify_coordinates(x, y, t)
                         v_dest = nodes[(newx, newy, t)]
-                        g.add_edge(v, v_dest, length=1)
+                        g.add_edge(v, v_dest, length=1,pos=set([(x,y),(newx,newy)]))
     for k, v in nodes.items():
         v['x'], v['y'], v['o'] = k
         v['xs'], v['ys'], v['os'] = ([kk] for kk in k)
     empty_vs = [v.index for v in g.vs if not v.all_edges()]
     g.delete_vertices(empty_vs)
+
+    ## annotate nodes with extra informations
+    for v in g.vs:
+        v['target_of_agent']=-1 # no target
+        v["junction"]=1 if is_junction(g,v) else 0
+
     return g
+
+def merge_within_junction(g):
+    for v in g.vs:
+        if v['junction']==1 and v.outdegree()==1:
+            x_matches=[i for i, e in enumerate(g.vs['x']) if e == v['x']]
+            matches=[x_match for i, x_match in enumerate(x_matches) if g.vs[x_match]['y']==v['y']]
+            matches.remove(v.index)
+            for i in matches:
+                match=g.vs[i]
+                if match.outdegree()==1 and v.out_edges()[0].target_vertex==match.out_edges()[0].target_vertex:
+                        for e in match.in_edges():
+                            g.add_edge(e.source_vertex,v,length=e['length'],pos=e['pos'])
+                            g.delete_vertices(match)
+
 
 def merge_linear_paths(g):
     vertices_to_delete = []
@@ -47,21 +67,35 @@ def merge_linear_paths(g):
             s, t = e1.source_vertex, e2.target_vertex
 
             # we need to prevent linear paths from being removed completely
-            # because they are e.g. between two intersections
-            if s.outdegree() == 1 or t.indegree() == 1:
-                g.add_edge(s, t, length=e1['length'] + e2['length'])
-                for a in ('xs', 'ys', 'os'):
-                    s[a].extend(v[a])
-                    t[a].extend(v[a])
-                g.delete_edges([e1, e2])
-                vertices_to_delete.append(v)
+            # because they are e.g. between two intersections ### jonas: no longer needed imo.
+            # if s.outdegree() == 1 or t.indegree() == 1:
+            g.add_edge(s, t, length=e1['length'] + e2['length'], pos=e1['pos'].union(e2['pos']))
+            for a in ('xs', 'ys', 'os'):
+                s[a].extend(v[a])
+                t[a].extend(v[a])
+            g.delete_edges([e1, e2])
+            vertices_to_delete.append(v)
     g.delete_vertices(vertices_to_delete)
+
+
+def find_edges_that_share_resource(g):
+    return [(i,j) for i in range(len(g.es)) for j in range(len(g.es)) if g.es[i]['pos'] == g.es[j]['pos'] and j>i]
+
+def add_target_nodes(g,env):
+    target_nodes=[a.target for a in env.agents]
+
+    for i,node in enumerate(target_nodes):
+        g.add_vertex(x=node[0],y=node[1],target_of_agent=i)
+
+
 
 
 class TransitionGraph:
     def __init__(self, env):
         self.g = build_transition_graph(env)
+        merge_within_junction(self.g)
         merge_linear_paths(self.g)
+        add_target_nodes(self.g,env)
 
 
 def get_linear_path(g,v): #only explores one direction-> start right after junction
