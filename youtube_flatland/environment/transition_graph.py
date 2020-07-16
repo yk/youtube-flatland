@@ -40,7 +40,8 @@ def build_transition_graph(env):
 
     ## annotate nodes with extra informations
     for v in g.vs:
-        v['target_of_agent']=-1 # no target
+        #v['tar_of_agent']=-1 # no target
+        #v['pos_of_agent']=-1 #no agent      needed???
         v["junction"]=1 if is_junction(g,v) else 0
 
     return g
@@ -82,10 +83,26 @@ def find_edges_that_share_resource(g):
     return [(i,j) for i in range(len(g.es)) for j in range(len(g.es)) if g.es[i]['pos'] == g.es[j]['pos'] and j>i]
 
 def add_target_nodes(g,env):
-    target_nodes=[a.target for a in env.agents]
+    for i,a in enumerate(env.agents):  
+        x,y=a.target
+        g.add_vertex(x=x,y=y,tar_of_agent=i)
+   
+def add_agent_nodes(g,env):
+    for i,a in enumerate(env.agents):
+        if not a.position is None: 
+            x,y=a.position
+            g.add_vertex(x=x,y=y,pos_of_agent=i)
+        elif not a.initial_position is None:
+            x,y=a.initial_position
+            g.add_vertex(x=x,y=y,pos_of_agent=i)
 
-    for i,node in enumerate(target_nodes):
-        g.add_vertex(x=node[0],y=node[1],target_of_agent=i)
+        ### more information is needed here: velocity, malfunction, direction,old_position!
+
+
+
+   
+
+
 
 
 
@@ -96,6 +113,7 @@ class TransitionGraph:
         merge_within_junction(self.g)
         merge_linear_paths(self.g)
         add_target_nodes(self.g,env)
+        add_agent_nodes(self.g,env)
 
 
 def get_linear_path(g,v): #only explores one direction-> start right after junction
