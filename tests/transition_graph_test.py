@@ -26,11 +26,11 @@ class EnvTest(absltest.TestCase):
 
         manuel_graph=True
         if manuel_graph:
-            specs = [[(8, 0), (1,90 ), (1, 90), (6, 0), (1, 90), (7, 90)],
-                    [(1, 180), (0, 0), (0, 0), (1, 0), (0, 0), (0, 0)],
-                     [(8, 270), (1, 90), (1, 90), (2, 90), (1, 90), (7, 90)],
-                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)],
-                     [(1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]]
+            specs = [[(8, 0), (1,90 ), (1, 90), (6, 0), (1, 90), (8, 90),(0,0)],
+                    [(1, 180), (0, 0), (0, 0), (1, 0), (0, 0), (1, 0),(0,0)],
+                     [(8, 270), (1, 90), (1, 90), (2, 90), (1, 90), (8, 180),(0,0)],
+                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),(0,0)],
+                     [(1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),(0,0)]]
 
             rail_shape = np.array(specs).shape
 
@@ -78,6 +78,8 @@ class EnvTest(absltest.TestCase):
         bg_img.paste(graph_img, (int(w/envw*(miny+.5)), int(h/envh*(minx+.5))), graph_img)
         bg_img.show()
 
+        #import IPython
+        #IPython.embed()
         print(f"edges that share common resources: {transition_graph.find_edges_that_share_resource(g)}")
 
 
