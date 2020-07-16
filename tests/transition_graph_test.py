@@ -28,9 +28,9 @@ class EnvTest(absltest.TestCase):
         if manuel_graph:
             specs = [[(8, 0), (1,90 ), (1, 90), (6, 0), (1, 90), (8, 90),(0,0)],
                     [(1, 180), (0, 0), (0, 0), (1, 0), (0, 0), (1, 0),(0,0)],
-                     [(8, 270), (1, 90), (1, 90), (2, 90), (1, 90), (8, 180),(0,0)],
-                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),(0,0)],
-                     [(1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0),(0,0)]]
+                     [(8, 270), (1, 90), (1, 90), (2, 90), (1, 90), (2, 360),(0,0)],
+                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (1, 0),(0,0)],
+                     [(0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (1, 0),(0,0)]]
 
             rail_shape = np.array(specs).shape
 
@@ -54,8 +54,8 @@ class EnvTest(absltest.TestCase):
 
         plt = igraph.Plot()
         layout = [(v['y']+np.random.randn()*0.125, v['x']+np.random.randn()*0.125) for v in g.vs]
-    
-        plt.add(g, layout=layout,vertex_label=list(range(len(g.vs))),edge_label=list(range(len(g.es))))
+
+        plt.add(g, layout=layout,margin=50,vertex_label=list(range(len(g.vs))),edge_label=list(range(len(g.es))))
         plt.redraw()
         with tempfile.NamedTemporaryFile() as f:
             plt.save(f.name)
@@ -64,9 +64,11 @@ class EnvTest(absltest.TestCase):
         render = rendertools.RenderTool(env, gl='PILSVG')
         render.render_env()
         bg_img = Image.fromarray(render.get_image())
-        graph_img.show() #uncomment for higher res graph images to inspect labels etc.
 
-        graph_img = graph_img.resize(bg_img.size)
+
+        graph_img.show() #uncomment for higher res graph images to inspect labels etc.
+       
+     
 
         minx, maxx, miny, maxy = min(g.vs['x']), max(g.vs['x']), min(g.vs['y']), max(g.vs['y'])
         envh, envw = env.height, env.width
