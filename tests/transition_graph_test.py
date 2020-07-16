@@ -53,7 +53,7 @@ class EnvTest(absltest.TestCase):
         g = tg.g
 
         plt = igraph.Plot()
-        layout = [(v['y']+np.random.randn()*0.15, v['x']+np.random.randn()*0.15) for v in g.vs]
+        layout = [(v['y']+np.random.randn()*0.125, v['x']+np.random.randn()*0.125) for v in g.vs]
     
         plt.add(g, layout=layout,vertex_label=list(range(len(g.vs))),edge_label=list(range(len(g.es))))
         plt.redraw()
@@ -64,7 +64,7 @@ class EnvTest(absltest.TestCase):
         render = rendertools.RenderTool(env, gl='PILSVG')
         render.render_env()
         bg_img = Image.fromarray(render.get_image())
-        #graph_img.show() #uncomment for higher res graph images to inspect labels etc.
+        graph_img.show() #uncomment for higher res graph images to inspect labels etc.
 
         graph_img = graph_img.resize(bg_img.size)
 
