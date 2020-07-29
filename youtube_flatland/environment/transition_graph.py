@@ -132,8 +132,7 @@ def join_linear_path(g,path):
     return [v.index for v in path[1:-1]] 
    
 def is_junction(g,v):    
-    x_matches=[i for i, e in enumerate(g.vs['x']) if e == v['x']]
-    matches=list(g.vs[x_matches]['y']).count(v['y'])
+    matches=len(g.vs.select(x=v['x'], y=v['y']))
     return matches>2
 
 def is_dead_end(v):
