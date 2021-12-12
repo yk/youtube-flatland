@@ -55,9 +55,16 @@ class EnvTest(absltest.TestCase):
         g = tg.g
 
         plt = igraph.Plot()
-        layout = [(v['y']+np.random.randn()*0.125, v['x']+np.random.randn()*0.125) for v in g.vs]
+        layout = [(v['y']+np.random.randn()*0.25, v['x']+np.random.randn()*0.25) for v in g.vs]
 
-        plt.add(g, layout=layout,margin=50,vertex_label=list(range(len(g.vs))),edge_label=list(range(len(g.es))))
+        plt.add(
+                g, 
+                layout=layout,
+                margin=50,
+                vertex_label=list(range(len(g.vs))),
+                edge_label=list(range(len(g.es))),
+                vertex_color=[dict(track='red', junction='blue', target='green', resource='yellow')[v['node_type']] for v in g.vs],
+                )
         plt.redraw()
         with tempfile.NamedTemporaryFile() as f:
             plt.save(f.name)
@@ -84,7 +91,7 @@ class EnvTest(absltest.TestCase):
 
         #import IPython
         #IPython.embed()
-        print(f"edges that share common resources: {transition_graph.find_edges_that_share_resource(g)}")
+        # print(f"edges that share common resources: {transition_graph.find_edges_that_share_resource(g)}")
 
 
 if __name__ == '__main__':
